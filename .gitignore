@@ -1,0 +1,7 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+KOMII_DEV_SPEC.md
+user_instructions.md

@@ -1,0 +1,40 @@
+{
+  "name": "komii-dev",
+  "version": "0.1.0",
+  "description": "Reusable project context for AI coding agents",
+  "author": "harfy345",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/harfy345/Komii-Dev.git"
+  },
+  "homepage": "https://github.com/harfy345/Komii-Dev#readme",
+  "bugs": {
+    "url": "https://github.com/harfy345/Komii-Dev/issues"
+  },
+  "type": "module",
+  "bin": {
+    "komii-dev": "./dist/src/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "build": "node scripts/clean.mjs && tsc -p tsconfig.json && node scripts/copy-templates.mjs",
+    "lint": "eslint .",
+    "test": "tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.0",
+    "@types/node": "^22.10.0",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.72.0"
+  }
+}
