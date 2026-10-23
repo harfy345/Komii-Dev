@@ -2,11 +2,29 @@
   "name": "komii-dev",
   "version": "0.1.0",
   "description": "Reusable project context for AI coding agents",
+  "keywords": [
+    "komii-dev",
+    "ai-coding-agent",
+    "coding-agent",
+    "ai-agent",
+    "developer-tools",
+    "project-context",
+    "project-memory",
+    "context-management",
+    "agent-skills",
+    "ai-workflow",
+    "codex",
+    "claude-code",
+    "github-copilot",
+    "cursor",
+    "vscode",
+    "cli"
+  ],
   "author": "harfy345",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/harfy345/Komii-Dev.git"
+    "url": "git+https://github.com/harfy345/Komii-Dev.git"
   },
   "homepage": "https://github.com/harfy345/Komii-Dev#readme",
   "bugs": {
@@ -14,7 +32,7 @@
   },
   "type": "module",
   "bin": {
-    "komii-dev": "./dist/src/cli.js"
+    "komii-dev": "dist/src/cli.js"
   },
   "files": [
     "dist"
