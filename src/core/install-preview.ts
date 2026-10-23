@@ -76,5 +76,9 @@ export async function printInstallPreview(
   } else {
     console.log("\nCustomized knowledge files and unrelated instruction text are preserved. Only unchanged managed templates and Komii Dev's marked instruction blocks can be refreshed.");
   }
-  console.log("Required folders are included. One confirmation will approve or cancel the entire plan.");
+  if (changes.some(({ marker }) => marker !== "✓")) {
+    console.log("Required folders are included. One confirmation will approve or cancel the entire plan.");
+  } else {
+    console.log("No filesystem changes are needed.");
+  }
 }
