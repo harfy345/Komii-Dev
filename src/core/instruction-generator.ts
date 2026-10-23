@@ -5,11 +5,15 @@ import type { AgentAdapter } from "../adapters/types.js";
 const referenceMarker = "komii-dev:instructions:start";
 const referenceEndMarker = "komii-dev:instructions:end";
 
-function mergeInstructions(existing: string, generated: string): string {
+function mergeInstructions(existing: string, generated: string, adapterId: AgentAdapter["id"]): string {
   if (existing.includes(referenceMarker) || existing.includes("komii-dev/AGENT.md")) {
     return existing;
   }
-  return `${existing.trimEnd()}\n\n${generated}\n`;
+  const contentToAppend = adapterId === "cursor" || adapterId === "vscode-komii-agent"
+    ? generated.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "")
+    : generated;
+  const separator = existing.endsWith("\n") ? "\n" : "\n\n";
+  return `${existing}${separator}${contentToAppend.trimStart()}\n`;
 }
 
 function updateManagedReference(existing: string, generated: string): string {
@@ -47,7 +51,7 @@ export async function installAdapter(
     ? `${generated}\n`
     : mode === "update"
       ? updateManagedReference(existing, generated)
-      : mergeInstructions(existing, generated);
+      : mergeInstructions(existing, generated, adapter.id);
   if (existing === content) return;
 
   await writeConfirmedFile(root, adapter.instructionPath, content, confirm, summary, existing);

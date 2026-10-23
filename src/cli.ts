@@ -32,7 +32,7 @@ async function main(): Promise<void> {
         "  komii-dev doctor",
         "",
         "Commands operate in the current directory. Init installs all supported adapters.",
-        "Filesystem changes require a separate interactive confirmation for each directory or file.",
+        "Init and update preview all changes and ask once before writing any files.",
       ].join("\n"));
       break;
     default:

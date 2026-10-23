@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { adapters } from "../adapters/registry.js";
-import { ensureDirectory, type ChangeSummary, type ConfirmOperation, writeConfirmedFile } from "../core/filesystem-safety.js";
+import { confirmOnce, ensureDirectory, type ChangeSummary, type ConfirmOperation, writeConfirmedFile } from "../core/filesystem-safety.js";
+import { printInstallPreview } from "../core/install-preview.js";
 import { initializationPrompt, verificationPrompt } from "../core/prompt-generator.js";
 import { loadTemplates } from "../core/template-renderer.js";
 import { installAdapter } from "../core/instruction-generator.js";
@@ -13,8 +14,10 @@ export async function runInit(
 ): Promise<ChangeSummary> {
   const root = resolve(cwd);
   const templates = await loadTemplates();
+  await printInstallPreview(root, templates, adapters, "init");
+  const confirmAll = confirmOnce(confirm);
   const summary: ChangeSummary = { created: [], edited: [], skipped: [] };
-  const knowledgeDirectoryReady = await ensureDirectory(root, "komii-dev", confirm, summary);
+  const knowledgeDirectoryReady = await ensureDirectory(root, "komii-dev", confirmAll, summary);
   const manifest = knowledgeDirectoryReady
     ? await readTemplateManifest(root)
     : { files: {}, originalContent: undefined };
@@ -25,7 +28,7 @@ export async function runInit(
       const parent = filePath.includes("/")
         ? filePath.slice(0, filePath.lastIndexOf("/"))
         : ".";
-      if (!await ensureDirectory(root, parent, confirm, summary)) continue;
+      if (!await ensureDirectory(root, parent, confirmAll, summary)) continue;
 
       const target = resolve(root, filePath);
       const existing = await readFile(target, "utf8").catch((error: unknown) => {
@@ -36,14 +39,14 @@ export async function runInit(
         if (existing === content) managedFiles[filePath] = hashTemplate(content);
         continue;
       }
-      if (await writeConfirmedFile(root, filePath, content, confirm, summary)) {
+      if (await writeConfirmedFile(root, filePath, content, confirmAll, summary)) {
         managedFiles[filePath] = hashTemplate(content);
       }
     }
   }
 
   if (knowledgeDirectoryReady) {
-    await writeTemplateManifest(root, managedFiles, manifest, confirm, summary);
+    await writeTemplateManifest(root, managedFiles, manifest, confirmAll, summary);
   }
 
   const agentFile = await readFile(resolve(root, "komii-dev/AGENT.md"), "utf8").catch((error: unknown) => {
@@ -55,7 +58,7 @@ export async function runInit(
       summary.skipped.push(`install adapter ${adapter.id} because komii-dev/AGENT.md is unavailable`);
       continue;
     }
-    await installAdapter(root, adapter, confirm, summary);
+    await installAdapter(root, adapter, confirmAll, summary);
   }
 
   console.log(`Installation directory: ${root}`);

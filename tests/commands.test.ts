@@ -92,21 +92,43 @@ describe("CLI commands", () => {
     assert.doesNotMatch(instructions, /^model:/m);
   });
 
-  it("asks before modifying existing agent instructions and preserves declined edits", async () => {
+  it("asks once for the full plan and appends to existing agent instructions", async () => {
     const root = await createRoot();
     const instructions = join(root, "AGENTS.md");
     await writeFile(instructions, "Existing project guidance.\n");
-    const rejectedEdit = await runInit(
-      root,
-      async (operation, path) => operation !== "edit file" || !path.endsWith("AGENTS.md"),
-    );
-    assert.equal(await readFile(instructions, "utf8"), "Existing project guidance.\n");
-    assert.ok(rejectedEdit.skipped.includes("edit file AGENTS.md"));
+    let confirmations = 0;
+    const summary = await runInit(root, async () => {
+      confirmations += 1;
+      return true;
+    });
+    const updatedInstructions = await readFile(instructions, "utf8");
+    assert.equal(confirmations, 1);
+    assert.match(updatedInstructions, /^Existing project guidance\./);
+    assert.match(updatedInstructions, /komii-dev\/AGENT\.md/);
+    assert.ok(summary.edited.includes("file AGENTS.md"));
+  });
 
-    const acceptedEdit = await runInit(root, acceptAll);
-    assert.match(await readFile(instructions, "utf8"), /Existing project guidance\./);
-    assert.match(await readFile(instructions, "utf8"), /komii-dev\/AGENT\.md/);
-    assert.ok(acceptedEdit.edited.includes("file AGENTS.md"));
+  it("appends to existing adapter files without replacing their frontmatter", async () => {
+    const root = await createRoot();
+    const cursorPath = join(root, ".cursor", "rules", "komii-dev.mdc");
+    const vscodeAgentPath = join(root, ".github", "agents", "komii-dev.agent.md");
+    await mkdir(join(root, ".cursor", "rules"), { recursive: true });
+    await mkdir(join(root, ".github", "agents"), { recursive: true });
+    const cursorOriginal = "---\ndescription: Existing Cursor rule\nalwaysApply: false\n---\nExisting Cursor guidance.\n";
+    const vscodeOriginal = "---\nname: Existing Agent\ndescription: Existing agent\n---\nExisting agent guidance.\n";
+    await writeFile(cursorPath, cursorOriginal);
+    await writeFile(vscodeAgentPath, vscodeOriginal);
+
+    await runInit(root, acceptAll);
+
+    const cursorUpdated = await readFile(cursorPath, "utf8");
+    const vscodeUpdated = await readFile(vscodeAgentPath, "utf8");
+    assert.ok(cursorUpdated.startsWith(cursorOriginal));
+    assert.ok(vscodeUpdated.startsWith(vscodeOriginal));
+    assert.equal(cursorUpdated.match(/^---$/gm)?.length, 2);
+    assert.equal(vscodeUpdated.match(/^---$/gm)?.length, 2);
+    assert.match(cursorUpdated, /komii-dev\/AGENT\.md/);
+    assert.match(vscodeUpdated, /komii-dev\/AGENT\.md/);
   });
 
   it("updates missing files without replacing user-edited content", async () => {
@@ -138,7 +160,12 @@ describe("CLI commands", () => {
     manifest.files[filePath] = createHash("sha256").update(oldContent).digest("hex");
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 
-    const summary = await runUpdate(root, acceptAll);
+    let confirmations = 0;
+    const summary = await runUpdate(root, async () => {
+      confirmations += 1;
+      return true;
+    });
+    assert.equal(confirmations, 1);
     assert.match(await readFile(join(root, filePath), "utf8"), /Project map/);
     assert.ok(summary.edited.some((entry) => entry.replaceAll("\\", "/") === `file ${filePath}`));
   });
@@ -198,13 +225,13 @@ describe("CLI commands", () => {
 
 it("can decline every operation without mutating the project", async () => {
   const root = await createRoot();
-  const attempted: string[] = [];
-  const rejecting = async (_operation: string, _path: string) => {
-    attempted.push(`${_operation}:${_path}`);
+  let confirmations = 0;
+  const rejecting = async () => {
+    confirmations += 1;
     return false;
   };
   const summary = await runInit(root, rejecting);
-  assert.ok(attempted.length > 0);
+  assert.equal(confirmations, 1);
   assert.ok(summary.skipped.length > 0);
   await assert.rejects(readFile(join(root, "komii-dev", "AGENT.md"), "utf8"), { code: "ENOENT" });
 });
@@ -220,6 +247,8 @@ it("does not write files from a noninteractive CLI invocation", async () => {
   );
 
   assert.equal(result.status, 0, result.stderr);
-  assert.match(result.stderr, /Confirmation required; not performing create directory/);
+  assert.match(result.stderr, /Confirmation required; not performing planned filesystem changes/);
+  assert.match(result.stdout, /Komii Dev init plan/);
+  assert.match(result.stdout, /AGENTS\.md/);
   await assert.rejects(readFile(join(root, "komii-dev", "AGENT.md"), "utf8"), { code: "ENOENT" });
 });

@@ -42,7 +42,7 @@ npx komii-dev init
 
 Run the command from the root of the project where you want Komii Dev installed. The CLI operates in the current directory and does not search for a repository root.
 
-The CLI asks separately before every directory creation, file creation, or instruction-file edit. Type `y` for that operation only. Declined operations remain unchanged and are reported. In noninteractive execution, writes are refused because per-operation confirmation is unavailable.
+Before changing anything, the CLI shows a visual plan of the files it will create, preserve, append to, or refresh, then asks for one confirmation for the whole command. No changes are made unless you approve. It checks the target paths first: `init` preserves existing project knowledge files, and existing agent instruction files are kept intact with Komii Dev instructions appended at the end after approval. Komii Dev does not delete files. Required folders are created only as part of the approved plan. In noninteractive execution, changes are refused because confirmation is unavailable.
 
 Then send the printed verification prompt to the AI coding agent you use. Ask that agent to initialize the project knowledge from repository evidence. The CLI does not choose the model or perform that analysis. Review generated project knowledge before relying on it.
 
@@ -56,11 +56,11 @@ The custom agent remains active for the conversation until you switch agents. To
 
 ## Manual and agent-assisted installation
 
-For a manual installation, obtain this repository from its official GitHub source, copy the contents of `templates/komii-dev/` into your project's `komii-dev/` directory, and install all five instruction files from `templates/adapters/` at their documented paths. Preserve existing files and ask before each new file, directory, or edit. Verify the result with `komii-dev doctor`.
+For a manual installation, obtain this repository from its official GitHub source, copy the contents of `templates/komii-dev/` into your project's `komii-dev/` directory, and install all five instruction files from `templates/adapters/` at their documented paths. Preserve existing files, append instructions rather than replacing existing content, and get one approval for the complete change list before making changes. Verify the result with `komii-dev doctor`.
 
 You can also ask an agent with access to the official Komii Dev repository and permission to modify project files:
 
-> Install Komii Dev into this repository using the official Komii Dev repository as the source. Read its installation instructions, copy the required templates into this project, install all five supported agent instruction files, and preserve all existing files. Do not invent missing files or overwrite existing instructions without permission. Ask before each directory creation, file creation, or file edit, and verify the resulting configuration.
+> Install Komii Dev into this repository using the official Komii Dev repository as the source. Read its installation instructions, copy the required templates into this project, install all five supported agent instruction files, and preserve all existing files. Do not delete or replace existing content; append instruction references to existing files. First show me the complete list of planned changes and ask once for approval before making any changes, then verify the resulting configuration.
 
 An agent needs access to the source and permission to change the project; mentioning its name alone does not install or configure anything. Manual and CLI installation should yield equivalent initial knowledge files.
 
@@ -73,10 +73,10 @@ komii-dev doctor
 ```
 
 - `init` installs starter knowledge and all supported instruction references; existing knowledge files are preserved.
-- `update` adds missing starter files, refreshes unchanged CLI-managed templates, and updates managed instruction-reference blocks. It preserves customized knowledge and unrelated instruction text.
+- `update` adds missing starter files, refreshes unchanged CLI-managed templates, and refreshes only Komii Dev's marked instruction-reference blocks. It preserves customized knowledge and unrelated instruction text.
 - `doctor` checks expected knowledge files and all supported instruction references. It cannot inspect how an external agent applies instructions.
 
-Every filesystem write in `init` and `update` has its own confirmation prompt.
+`init` and `update` each show a complete change plan and ask for one confirmation before writing. `init` preserves existing knowledge files and appends to existing instruction files; it does not delete files. `update` may refresh unchanged CLI-managed templates and Komii Dev's own marked instruction blocks, while preserving user-customized content.
 
 ## Installed knowledge layout
 

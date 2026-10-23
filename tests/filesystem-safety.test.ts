@@ -43,7 +43,7 @@ describe("filesystem safety", () => {
     );
   });
 
-  it("asks separately before every missing directory and file creation", async () => {
+  it("requests approval for each low-level directory and file operation", async () => {
     const root = await createRoot();
     const operations: string[] = [];
     const summary: ChangeSummary = { created: [], edited: [], skipped: [] };

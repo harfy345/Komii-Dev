@@ -5,6 +5,14 @@ import { KomiiError } from "./errors.js";
 export type Operation = "create directory" | "create file" | "edit file";
 export type ConfirmOperation = (operation: Operation, absolutePath: string) => Promise<boolean>;
 
+export function confirmOnce(confirm: ConfirmOperation): ConfirmOperation {
+  let decision: Promise<boolean> | undefined;
+  return (operation, absolutePath) => {
+    decision ??= confirm(operation, absolutePath);
+    return decision;
+  };
+}
+
 export interface ChangeSummary {
   readonly created: string[];
   readonly edited: string[];
