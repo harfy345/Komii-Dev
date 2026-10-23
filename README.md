@@ -15,9 +15,11 @@ Large repositories contain more information than most individual tasks need. Re-
 1. Initialize `komii-dev/` and instruction entry points for all supported agents.
 2. Ask the AI coding agent you choose to verify the instructions and initialize the knowledge files from repository evidence.
 3. For later tasks, the agent reads the entry point and loads only relevant notes, skills, and source files.
-4. After meaningful changes, update only knowledge that has become stale.
+4. At the end of each request that changes the project, the agent checks whether the change made any Komii Dev knowledge stale and updates only the affected files. Later requests can then use the refreshed context.
 
 The CLI does not identify which AI agent you use, analyze your repository, call a model provider, or upload project code. It installs all supported instruction files. The AI model available through your coding agent handles project analysis and initializes the knowledge files; use whichever model you already use with that agent. The CLI imposes no model choice.
+
+This is an instruction to the selected coding agent, not automatic file monitoring: it updates context based on work it performs when permitted to edit those files. Changes made outside that agent are not automatically detected, and agent behavior can vary.
 
 ## Requirements and supported agents
 
@@ -47,6 +49,8 @@ Then send the printed verification prompt to the AI coding agent you use. Ask th
 ### Use Komii Dev from the VS Code agent picker
 
 After installation, open VS Code Chat's agent picker and select **Komii Dev**. The custom agent tells the selected model to read `komii-dev/AGENT.md` before handling each request and then load only relevant project context. It does not select or lock a model; use the model you prefer in VS Code.
+
+![Komii Dev selected in the VS Code agent picker](https://raw.githubusercontent.com/harfy345/Komii-Dev/master/assets/vscode-agent-picker.png)
 
 The custom agent remains active for the conversation until you switch agents. To have Komii Dev's instructions guide a conversation, select it in the picker; installing the file does not switch your active agent automatically. As with other agent instructions, the prompt guides model behavior and is not a hard runtime guarantee. See the [VS Code custom agents documentation](https://code.visualstudio.com/docs/agent-customization/custom-agents) for details.
 

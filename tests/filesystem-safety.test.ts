@@ -65,7 +65,14 @@ describe("filesystem safety", () => {
   it("does not create a declined directory or file", async () => {
     const root = await createRoot();
     const summary: ChangeSummary = { created: [], edited: [], skipped: [] };
-    assert.equal(await ensureDirectory(root, "rejected", async () => false, summary), false);
+    let prompts = 0;
+    const confirm = async () => {
+      prompts += 1;
+      return false;
+    };
+    assert.equal(await ensureDirectory(root, "rejected", confirm, summary), false);
+    assert.equal(await ensureDirectory(root, "rejected/nested", confirm, summary), false);
+    assert.equal(prompts, 1);
     await assert.rejects(stat(join(root, "rejected")), { code: "ENOENT" });
     assert.equal(summary.skipped.length, 1);
   });

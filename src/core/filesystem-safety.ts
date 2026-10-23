@@ -85,6 +85,7 @@ export async function ensureDirectory(
 
   for (const directory of missing) {
     const relativePath = relative(resolve(root), directory);
+    if (summary.skipped.includes(`create directory ${relativePath}`)) return false;
     if (!await confirm("create directory", directory)) {
       summary.skipped.push(`create directory ${relativePath}`);
       return false;

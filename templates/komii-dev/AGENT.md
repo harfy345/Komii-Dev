@@ -19,7 +19,7 @@ Inspect the actual source files and tests before relying on summaries. Search fo
 
 To initialize, inspect manifests, project configuration, representative source files, tests, and relevant CI or API/database definitions. Summarize only verified facts, mark uncertainty, and do not infer missing architecture. Avoid reading every file in a large repository.
 
-After meaningful changes, update only the affected knowledge files. Keep `state.md` focused on active work, blockers, and checks with dates or commit context; do not use it as a conversation transcript. Record decisions only when their rationale is evidenced. Ask before creating or editing files, preserve user content, and report what could not be verified.
+At the end of every request that changes the project, check whether those changes make any Komii Dev knowledge stale. Update only the affected knowledge files before finishing, so later requests can use current context. Do not edit knowledge files when no verified information changed. Keep `state.md` focused on active work, blockers, and checks with dates or commit context; do not use it as a conversation transcript. Record decisions only when their rationale is evidenced. Ask before creating or editing files, preserve user content, and report what could not be verified.
 
 ## Context discipline
 

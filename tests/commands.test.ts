@@ -35,7 +35,10 @@ describe("CLI commands", () => {
       const root = await createRoot();
       await writeFile(join(root, manifest), "");
       await runInit(root, acceptAll);
-      assert.match(await readFile(join(root, "komii-dev", "AGENT.md"), "utf8"), /Komii Dev project context/);
+      const contextInstructions = await readFile(join(root, "komii-dev", "AGENT.md"), "utf8");
+      assert.match(contextInstructions, /Komii Dev project context/);
+      assert.match(contextInstructions, /At the end of every request that changes the project/);
+      assert.match(contextInstructions, /Update only the affected knowledge files/);
       assert.match(await readFile(join(root, "AGENTS.md"), "utf8"), /komii-dev\/AGENT\.md/);
     });
   }

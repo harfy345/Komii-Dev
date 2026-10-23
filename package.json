@@ -1,6 +1,6 @@
 {
   "name": "komii-dev",
-  "version": "0.1.0",
+  "version": "1.0.2",
   "description": "Reusable project context for AI coding agents",
   "keywords": [
     "komii-dev",
@@ -35,7 +35,8 @@
     "komii-dev": "dist/src/cli.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "assets"
   ],
   "engines": {
     "node": ">=20.19"
